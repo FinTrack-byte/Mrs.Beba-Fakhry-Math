@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mrs Beba Fakhry's Math Classes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FBF6E7; /* Light beige from the logo */
+            color: #4B3A4D; /* Dark purple from the logo */
+        }
+        .text-dark-purple { color: #4B3A4D; }
+        .bg-dark-purple { background-color: #4B3A4D; }
+        .bg-light-beige { background-color: #FBF6E7; }
+        .bg-golden-yellow { background-color: #D6A461; }
+        .text-golden-yellow { color: #D6A461; }
+        
+        /* Custom styles for select elements */
+        select.custom-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: left 0.75rem center;
+            background-size: 1.5em;
+            padding-left: 2.5rem;
+            padding-right: 1rem;
+        }
+
+        html[dir="rtl"] select.custom-select {
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%234B3A4D" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-position: right 0.75rem center;
+            padding-left: 1rem;
+            padding-right: 2.5rem;
+        }
+        select.custom-select::-ms-expand {
+            display: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Language Switcher -->
+    <div class="absolute top-4 right-4 z-50">
+        <select id="language-switcher" class="custom-select bg-white rounded-lg border text-dark-purple px-4 py-2 text-sm shadow-md">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+    
+    <!-- Main App Container -->
+    <div id="app-container" class="flex-grow flex items-center justify-center p-4">
+        <!-- Content will be rendered here by JavaScript -->
+    </div>
+
+    <!-- Message Modal -->
+    <div id="modal-container" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
+            <h3 id="modal-title" class="text-xl font-bold mb-2"></h3>
+            <p id="modal-message" class="mb-4"></p>
+            <button id="modal-ok-button" class="bg-dark-purple text-white px-4 py-2 rounded-md font-semibold hover:bg-opacity-80 transition"></button>
+        </div>
+    </div>
+    
+    <!-- Reschedule Modal -->
+    <div id="reschedule-modal-container" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+            <h3 class="text-xl font-bold text-dark-purple mb-4" data-translate-key="rescheduleSession"></h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="reschedule-date" class="block text-sm font-medium text-gray-700" data-translate-key="newDate"></label>
+                    <input type="date" id="reschedule-date" class="w-full px-3 py-2 border rounded-md focus:ring-golden-yellow focus:border-golden-yellow">
+                </div>
+                <div>
+                    <label for="reschedule-time" class="block text-sm font-medium text-gray-700" data-translate-key="newTime"></label>
+                    <input type="time" id="reschedule-time" class="w-full px-3 py-2 border rounded-md focus:ring-golden-yellow focus:border-golden-yellow">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-2">
+                <button id="reschedule-cancel-button" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-md font-semibold hover:bg-gray-300 transition" data-translate-key="cancel"></button>
+                <button id="reschedule-save-button" class="px-4 py-2 bg-dark-purple text-white rounded-md font-semibold hover:bg-opacity-80 transition" data-translate-key="save"></button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Material Modal -->
+    <div id="edit-material-modal-container" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm">
+            <h3 class="text-xl font-bold text-dark-purple mb-4" data-translate-key="editMaterial"></h3>
+            <textarea id="edit-material-text" rows="5" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-golden-yellow"></textarea>
+            <div class="mt-6 flex justify-end space-x-2">
+                <button id="edit-material-cancel-button" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-md font-semibold hover:bg-gray-300 transition" data-translate-key="cancel"></button>
+                <button id="edit-material-save-button" class="px-4 py-2 bg-dark-purple text-white rounded-md font-semibold hover:bg-opacity-80 transition" data-translate-key="save"></button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Exam Modal -->
+    <div id="create-exam-modal-container" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl my-8">
+            <h3 class="text-xl font-bold text-dark-purple mb-4" data-translate-key="createExam"></h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="exam-title" class="block text-sm font-medium text-gray-700" data-translate-key="examTitle"></label>
+                    <input type="text" id="exam-title" data-translate-placeholder="enterExamTitle" class="w-full px-3 py-2 border rounded-md focus:ring-golden-yellow focus:border-golden-yellow">
+                </div>
+                <div>
+                    <label for="exam-time-limit" class="block text-sm font-medium text-gray-700" data-translate-key="timeLimitMinutes"></label>
+                    <input type="number" id="exam-time-limit" value="60" class="w-full px-3 py-2 border rounded-md focus:ring-golden-yellow focus:border-golden-yellow">
+                </div>
+                <div id="questions-container" class="space-y-6 border-t pt-4">
+                    <h4 class="font-bold text-lg text-dark-purple" data-translate-key="questions"></h4>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-2">
+                <button id="add-question-button" class="px-4 py-2 bg-golden-yellow text-dark-purple rounded-md font-semibold hover:bg-opacity-80 transition" data-translate-key="addQuestion"></button>
+                <button id="save-exam-button" class="px-4 py-2 bg-dark-purple text-white rounded-md font-semibold hover:bg-opacity-80 transition" data-translate-key="saveExam"></button>
+                <button id="cancel-create-exam-button" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-md font-semibold hover:bg-gray-300 transition" data-translate-key="cancel"></button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Edit Exam Modal -->
+    <div id="edit-exam-modal-container" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl my-8">
+            <h3 class="text-xl font-bold text-dark-purple mb-4" data-translate-key="editExam"></h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="edit-exam-title" class="block text-sm font-medium text-gray-700" data-translate-key="examTitle"></label>
+                    <input type="text" id="edit-exam-title" data-translate-placeholder="enterExamTitle" class="w-full px-3 py-2 border rounded-md focus:ring-golden-yellow focus:border-golden-yellow">
+                </div>
+                <div>
+                    <label for="edit-exam-time-limit" class="block text-sm font-medium text-gray-700" data-translate-key="timeLimitMinutes"></label>
+                    <input type="number" id="edit-exam-time-limit" class="w-full px-3 py-2 border rounded-md focus:ring-golden-yellow focus:border-golden-yellow">
+                </div>
+                <div id="edit-questions-container" class="space-y-6 border-t pt-4">
+                    <h4 class="font-bold text-lg text-dark-purple" data-translate-key="questions"></h4>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-2">
+                <button id="edit-add-question-button" class="px-4 py-2 bg-golden-yellow text-dark-purple rounded-md font-semibold hover:bg-opacity-80 transition" data-translate-key="addQuestion"></button>
+                <button id="edit-save-exam-button" class="px-4 py-2 bg-dark-purple text-white rounded-md font-semibold hover:bg-opacity-80 transition" data-translate-key="saveChanges"></button>
+                <button id="edit-cancel-exam-button" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-md font-semibold hover:bg-gray-300 transition" data-translate-key="cancel"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, onSnapshot, collection, query, addDoc, getDocs, updateDoc, deleteDoc, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        setLogLevel('debug');
+
+        const translations = {
+            ar: {
+                welcome: "مرحباً",
+                enterPassword: "أدخل كلمة المرور",
+                login: "تسجيل الدخول",
+                studentInfo: "للطالب، اترك الحقل فارغاً.",
+                teacherInfo: "123",
+                assistantInfo: "456",
+                secretResultsInfo: "789",
+                logout: "خروج",
+                myUserId: "معرف المستخدم الخاص بك:",
+                studentDashboard: "لوحة تحكم الطالب",
+                teacherDashboard: "لوحة تحكم المعلمة",
+                assistantDashboard: "لوحة تحكم المساعدة",
+                secretExamResults: "النتائج السرية للامتحانات",
+                loadingResults: "جاري تحميل النتائج...",
+                sessionsCountdown: "العد التنازلي للحصة القادمة",
+                lessonNumber: "رقم الحصة",
+                groupTitle: " - ",
+                back: "رجوع",
+                noSessionsFound: "لا توجد مواعيد حالياً",
+                sessionHasStarted: "بدأت الحصة!",
+                days: "ي",
+                hours: "س",
+                minutes: "د",
+                seconds: "ث",
+                rescheduleSession: "تغيير موعد الحصة",
+                skipNextSession: "تخطي الحصة القادمة",
+                editMaterial: "تعديل المادة",
+                delete: "حذف",
+                save: "حفظ",
+                cancel: "إلغاء",
+                newDate: "تاريخ جديد",
+                newTime: "وقت جديد",
+                materials: "المواد العلمية",
+                exams: "الامتحانات",
+                noMaterials: "لا توجد مواد علمية حالياً.",
+                lesson: "الدرس:",
+                addMaterial: "إضافة مادة جديدة",
+                enterNewMaterial: "أدخل المادة العلمية الجديدة",
+                addMaterialButton: "إضافة المادة",
+                noExams: "لا توجد امتحانات حالياً.",
+                examDuration: "مدة الامتحان:",
+                minutesShort: "دقيقة",
+                startExam: "ابدأ الامتحان",
+                viewResults: "عرض النتائج",
+                createExam: "إنشاء امتحان جديد",
+                examTitle: "عنوان الامتحان",
+                enterExamTitle: "أدخل عنوان الامتحان",
+                timeLimitMinutes: "الوقت الزمني (بالدقائق)",
+                questions: "الأسئلة",
+                addQuestion: "إضافة سؤال",
+                saveExam: "حفظ الامتحان",
+                editExam: "تعديل الامتحان",
+                saveChanges: "حفظ التعديلات",
+                enterQuestionText: "أدخل نص السؤال",
+                questionType: "نوع السؤال:",
+                choose: "اختيار من متعدد",
+                complete: "أكمل",
+                story: "مسألة كلامية",
+                enterCorrectAnswer: "الإجابة الصحيحة",
+                option: "خيار",
+                deleteQuestion: "حذف",
+                submitExam: "تسليم الامتحان",
+                examResult: "نتيجة الامتحان",
+                yourScoreIs: "لقد حصلت على درجة:",
+                goBack: "العودة",
+                noResultsFound: "لم يتم تسليم أي نتائج لهذا الامتحان بعد.",
+                studentAnswer: "إجابة الطالب:",
+                correctAnswer: "الإجابة الصحيحة:",
+                correct: "إجابة صحيحة",
+                incorrect: "إجابة خاطئة",
+                studentsRoster: "قائمة الطلاب والتقييمات",
+                rating: "التقييم:",
+                noRating: "لم يتم التقييم",
+                addStudent: "إضافة طالب جديد",
+                enterStudentName: "اسم الطالب",
+                addStudentButton: "إضافة طالب",
+                assistantNotes: "ملاحظات المساعدة (خاصة)",
+                enterNotes: "أضف ملاحظات حول المدفوعات أو تفاصيل أخرى...",
+                saveNotes: "حفظ الملاحظات",
+                error: "خطأ",
+                connectionError: "خطأ في الاتصال",
+                connectionErrorMessage: "حدث خطأ أثناء الاتصال بالخدمات. يرجى المحاولة لاحقاً.",
+                enterData: "الرجاء إدخال البيانات المطلوبة.",
+                sessionSkipped: "تم تخطي الحصة بنجاح.",
+                sessionRescheduled: "تم تحديث موعد الحصة بنجاح.",
+                materialAdded: "تمت إضافة المادة بنجاح.",
+                materialEdited: "تم تعديل المادة بنجاح.",
+                materialDeleted: "تم حذف المادة بنجاح.",
+                studentAdded: "تمت إضافة الطالب",
+                examSaved: "تم حفظ الامتحان بنجاح.",
+                examEdited: "تم تعديل الامتحان بنجاح.",
+                examDeleted: "تم حذف الامتحان بنجاح.",
+                examNotFound: "الامتحان غير موجود.",
+                noSubmission: "لم يتم تسليم إجابات لهذا الامتحان بعد.",
+                notesSaved: "تم حفظ الملاحظات بنجاح.",
+                classTime: (time) => `${time} مساءً`,
+                unknownExam: "امتحان غير معروف",
+                examResultFor: (title) => `نتائج ${title}`,
+                yourUserIdIs: (userId) => `معرف المستخدم الخاص بك: ${userId}`,
+            },
+            en: {
+                welcome: "Welcome",
+                enterPassword: "Enter Password",
+                login: "Login",
+                studentInfo: "For students, leave the field empty.",
+                teacherInfo: "For teacher: 123",
+                assistantInfo: "For assistant: 456",
+                secretResultsInfo: "For secret results: 789",
+                logout: "Logout",
+                myUserId: "Your User ID:",
+                studentDashboard: "Student Dashboard",
+                teacherDashboard: "Teacher Dashboard",
+                assistantDashboard: "Assistant Dashboard",
+                secretExamResults: "Secret Exam Results",
+                loadingResults: "Loading results...",
+                sessionsCountdown: "Next Session Countdown",
+                lessonNumber: "Lesson Number",
+                groupTitle: " - ",
+                back: "Back",
+                noSessionsFound: "No sessions found",
+                sessionHasStarted: "Session has started!",
+                days: "d",
+                hours: "h",
+                minutes: "m",
+                seconds: "s",
+                rescheduleSession: "Reschedule Session",
+                skipNextSession: "Skip Next Session",
+                editMaterial: "Edit Material",
+                delete: "Delete",
+                save: "Save",
+                cancel: "Cancel",
+                newDate: "New Date",
+                newTime: "New Time",
+                materials: "Materials",
+                exams: "Exams",
+                noMaterials: "No materials available at the moment.",
+                lesson: "Lesson:",
+                addMaterial: "Add New Material",
+                enterNewMaterial: "Enter new material here",
+                addMaterialButton: "Add Material",
+                noExams: "No exams available at the moment.",
+                examDuration: "Exam Duration:",
+                minutesShort: "minutes",
+                startExam: "Start Exam",
+                viewResults: "View Results",
+                createExam: "Create New Exam",
+                examTitle: "Exam Title",
+                enterExamTitle: "Enter exam title",
+                timeLimitMinutes: "Time Limit (in minutes)",
+                questions: "Questions",
+                addQuestion: "Add Question",
+                saveExam: "Save Exam",
+                editExam: "Edit Exam",
+                saveChanges: "Save Changes",
+                enterQuestionText: "Enter question text",
+                questionType: "Question Type:",
+                choose: "Multiple Choice",
+                complete: "Fill in the blank",
+                story: "Word Problem",
+                enterCorrectAnswer: "Correct Answer",
+                option: "Option",
+                deleteQuestion: "Delete",
+                submitExam: "Submit Exam",
+                examResult: "Exam Result",
+                yourScoreIs: "Your score is:",
+                goBack: "Go Back",
+                noResultsFound: "No submissions for this exam yet.",
+                studentAnswer: "Student Answer:",
+                correctAnswer: "Correct Answer:",
+                correct: "Correct",
+                incorrect: "Incorrect",
+                studentsRoster: "Students Roster and Evaluation",
+                rating: "Rating:",
+                noRating: "Not Rated",
+                addStudent: "Add New Student",
+                enterStudentName: "Student Name",
+                addStudentButton: "Add Student",
+                assistantNotes: "Assistant Notes (Private)",
+                enterNotes: "Add notes about payments or other details...",
+                saveNotes: "Save Notes",
+                error: "Error",
+                connectionError: "Connection Error",
+                connectionErrorMessage: "An error occurred while connecting to services. Please try again later.",
+                enterData: "Please enter the required data.",
+                sessionSkipped: "Session skipped successfully.",
+                sessionRescheduled: "Session rescheduled successfully.",
+                materialAdded: "Material added successfully.",
+                materialEdited: "Material edited successfully.",
+                materialDeleted: "Material deleted successfully.",
+                studentAdded: "Student added successfully.",
+                examSaved: "Exam saved successfully.",
+                examEdited: "Exam edited successfully.",
+                examDeleted: "Exam deleted successfully.",
+                examNotFound: "Exam not found.",
+                noSubmission: "No submissions found for this exam.",
+                notesSaved: "Notes saved successfully.",
+                classTime: (time) => `${time} PM`,
+                unknownExam: "Unknown Exam",
+                examResultFor: (title) => `Results for ${title}`,
+                yourUserIdIs: (userId) => `Your User ID: ${userId}`,
+            }
+        };
+
+        let currentLang = 'ar';
+        
+        const setLanguage = (lang) => {
+            currentLang = lang;
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+            localStorage.setItem('lang', lang);
+            updateUIForLanguage();
+        };
+        
+        const updateUIForLanguage = () => {
+            const elements = document.querySelectorAll('[data-translate-key]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-translate-key');
+                if (translations[currentLang][key]) {
+                    el.innerText = translations[currentLang][key];
+                }
+            });
+            const placeholders = document.querySelectorAll('[data-translate-placeholder]');
+            placeholders.forEach(el => {
+                const key = el.getAttribute('data-translate-placeholder');
+                if (translations[currentLang][key]) {
+                    el.placeholder = translations[currentLang][key];
+                }
+            });
+        };
+
+        const translate = (key, ...args) => {
+            let text = translations[currentLang][key];
+            if (typeof text === 'function') {
+                return text(...args);
+            }
+            return text;
+        };
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const appId = __app_id;
+
+        // Firebase Initialization
+        let app, db, auth;
+        let userId = null;
+        let currentRole = null;
+        let currentGroupId = null;
+        let countdownInterval;
+        let materialToEditId = null;
+        let examTimerInterval;
+        let currentExamId = null;
+        let examQuestions = [];
+
+        // Schedules data
+        const schedules = {
+            "Sat & Tue": [
+                { id: 'grade3_sat_tue', grade: 'Grade 3', time: '4:30', days: 'Sat & Tue' },
+                { id: 'grade2_sat_tue', grade: 'Grade 2', time: '5:30', days: 'Sat & Tue' },
+                { id: 'grade4_sat_tue', grade: 'Grade 4', time: '6:45', days: 'Sat & Tue' },
+                { id: 'grade6_sat_tue', grade: 'Grade 6', time: '8:00', days: 'Sat & Tue' }
+            ],
+            "Sun & Wed": [
+                { id: 'grade3_sun_wed', grade: 'Grade 3', time: '4:30', days: 'Sun & Wed' },
+                { id: 'grade4_sun_wed', grade: 'Grade 4', time: '5:30', days: 'Sun & Wed' },
+                { id: 'grade2_sun_wed', grade: 'Grade 2', time: '6:30', days: 'Sun & Wed' },
+                { id: 'grade5_sun_wed', grade: 'Grade 5', time: '7:30', days: 'Sun & Wed' },
+                { id: 'grade6_sun_wed', grade: 'Grade 6', time: '8:30', days: 'Sun & Wed' }
+            ],
+            "Mon & Thu": [
+                { id: 'grade5_mon_thu', grade: 'Grade 5', time: '5:30', days: 'Mon & Thu' },
+                { id: 'grade4_mon_thu', grade: 'Grade 4', time: '7:00', days: 'Mon & Thu' },
+                { id: 'grade6_mon_thu', grade: 'Grade 6', time: '8:15', days: 'Mon & Thu' }
+            ]
+        };
+
+        // --- UI Rendering Functions ---
+
+        const showModal = (title, message) => {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('modal-ok-button').innerText = translate('ok');
+            document.getElementById('modal-container').classList.remove('hidden');
+        };
+
+        const hideModal = () => {
+            document.getElementById('modal-container').classList.add('hidden');
+        };
+        
+        const showRescheduleModal = () => {
+            document.getElementById('reschedule-modal-container').classList.remove('hidden');
+        };
+        
+        const hideRescheduleModal = () => {
+            document.getElementById('reschedule-modal-container').classList.add('hidden');
+        };
+
+        const showEditMaterialModal = (id, value) => {
+            materialToEditId = id;
+            document.getElementById('edit-material-text').value = value;
+            document.getElementById('edit-material-modal-container').classList.remove('hidden');
+        };
+
+        const hideEditMaterialModal = () => {
+            document.getElementById('edit-material-modal-container').classList.add('hidden');
+        };
+
+        const showCreateExamModal = () => {
+            document.getElementById('create-exam-modal-container').classList.remove('hidden');
+            document.getElementById('exam-title').value = '';
+            document.getElementById('exam-time-limit').value = 60;
+            document.getElementById('questions-container').innerHTML = `<h4 class="font-bold text-lg text-dark-purple" data-translate-key="questions"></h4>`;
+            examQuestions = [];
+            updateUIForLanguage();
+        };
+
+        const hideCreateExamModal = () => {
+            document.getElementById('create-exam-modal-container').classList.add('hidden');
+        };
+        
+        const showEditExamModal = (examData) => {
+            currentExamId = examData.id;
+            examQuestions = examData.questions;
+            const container = document.getElementById('edit-exam-modal-container');
+            const titleInput = document.getElementById('edit-exam-title');
+            const timeLimitInput = document.getElementById('edit-exam-time-limit');
+            const questionsContainer = document.getElementById('edit-questions-container');
+
+            titleInput.value = examData.title;
+            timeLimitInput.value = examData.timeLimit;
+            questionsContainer.innerHTML = `<h4 class="font-bold text-lg text-dark-purple" data-translate-key="questions"></h4>`;
+            
+            examQuestions.forEach((q, index) => {
+                const questionHtml = createQuestionHtml(q, index, true);
+                questionsContainer.insertAdjacentHTML('beforeend', questionHtml);
+            });
+
+            container.classList.remove('hidden');
+            updateUIForLanguage();
+        };
+
+        const hideEditExamModal = () => {
+            document.getElementById('edit-exam-modal-container').classList.add('hidden');
+        };
+        
+        const createQuestionHtml = (questionData, index, isEdit) => {
+            const prefix = isEdit ? 'edit-' : '';
+            
+            let optionsHtml = '';
+            if (questionData.type === 'choose') {
+                optionsHtml = `
+                    <input type="text" id="${prefix}q-correct-answer-${index}" data-translate-placeholder="enterCorrectAnswer" class="w-full px-2 py-1 border rounded-md mb-2" value="${questionData.correctAnswer || ''}">
+                    ${(questionData.options || []).map((opt, i) => `<input type="text" id="${prefix}q-option-${i + 1}-${index}" data-translate-placeholder="option" class="w-full px-2 py-1 border rounded-md mb-1" value="${opt || ''}">`.replace('placeholder="option"', `placeholder="${translate('option')} ${i + 1}"`)).join('')}
+                    ${[...Array(4 - (questionData.options || []).length)].map((_, i) => `<input type="text" id="${prefix}q-option-${i + (questionData.options || []).length + 1}-${index}" data-translate-placeholder="option" class="w-full px-2 py-1 border rounded-md mb-1">`.replace('placeholder="option"', `placeholder="${translate('option')} ${i + (questionData.options || []).length + 1}"`)).join('')}
+                `;
+            } else if (questionData.type === 'complete') {
+                optionsHtml = `<input type="text" id="${prefix}q-correct-answer-${index}" data-translate-placeholder="enterCorrectAnswer" class="w-full px-2 py-1 border rounded-md mb-2" value="${questionData.correctAnswer || ''}">`;
+            }
+
+            return `
+                <div id="${prefix}question-${index}" class="p-4 bg-gray-100 rounded-md shadow-inner">
+                    <div class="flex justify-between items-center mb-2">
+                        <h5 class="font-bold text-sm">${translate('question')} ${index + 1}</h5>
+                        <button type="button" onclick="removeQuestion('${index}', ${isEdit})" class="text-red-500 hover:text-red-700 transition" data-translate-key="deleteQuestion"></button>
+                    </div>
+                    <div class="flex items-center space-x-4 mb-2">
+                        <label for="${prefix}q-type-${index}" class="text-sm" data-translate-key="questionType"></label>
+                        <select id="${prefix}q-type-${index}" onchange="updateQuestionType('${index}', this.value, ${isEdit})" class="rounded-md border p-1 text-sm custom-select">
+                            <option value="choose" ${questionData.type === 'choose' ? 'selected' : ''} data-translate-key="choose"></option>
+                            <option value="complete" ${questionData.type === 'complete' ? 'selected' : ''} data-translate-key="complete"></option>
+                            <option value="story" ${questionData.type === 'story' ? 'selected' : ''} data-translate-key="story"></option>
+                        </select>
+                    </div>
+                    <input type="text" id="${prefix}q-text-${index}" data-translate-placeholder="enterQuestionText" class="w-full px-2 py-1 border rounded-md mb-2" value="${questionData.question || ''}">
+                    <div id="${prefix}options-container-${index}">
+                        ${optionsHtml}
+                    </div>
+                </div>
+            `;
+        };
+
+        const renderLogin = () => {
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="bg-white p-8 sm:p-12 rounded-2xl shadow-xl w-full max-w-sm text-center">
+                    <img src="https://i.postimg.cc/285r37QM/1111111111111.jpg" alt="Logo" class="mx-auto w-48 mb-8 rounded-full">
+                    <h1 class="text-3xl font-bold mb-6 text-dark-purple" data-translate-key="welcome"></h1>
+                    <div class="space-y-4">
+                        <input id="password-input" type="password" data-translate-placeholder="enterPassword" class="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:outline-none focus:ring-2 focus:ring-golden-yellow">
+                        <button id="login-button" class="w-full bg-dark-purple text-white py-3 rounded-lg font-semibold hover:bg-opacity-80 transition" data-translate-key="login"></button>
+                        <p class="text-sm text-gray-500 mt-4">
+                            <span data-translate-key="studentInfo"></span><br>
+                            <span data-translate-key="teacherInfo"></span><br>
+                            <span data-translate-key="assistantInfo"></span><br>
+                            <span data-translate-key="secretResultsInfo"></span>
+                        </p>
+                    </div>
+                </div>
+            `;
+            document.getElementById('login-button').addEventListener('click', handleLogin);
+            updateUIForLanguage();
+        };
+        
+        const renderSecretResultsPage = async () => {
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="w-full max-w-4xl p-6 sm:p-8 bg-white rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <button onclick="window.renderLogin()" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-lg font-semibold hover:bg-gray-300 transition" data-translate-key="logout"></button>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-dark-purple" data-translate-key="secretExamResults"></h1>
+                    </div>
+                    <div id="results-list" class="space-y-6">
+                        <p class="text-center text-gray-500" data-translate-key="loadingResults"></p>
+                    </div>
+                </div>
+            `;
+            await fetchAllExamSubmissions();
+            updateUIForLanguage();
+        };
+
+        const renderStudentHome = () => {
+            currentRole = 'student';
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="w-full max-w-2xl p-6 sm:p-8 bg-white rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-dark-purple" data-translate-key="studentDashboard"></h1>
+                        <button onclick="window.renderLogin()" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-lg font-semibold hover:bg-gray-300 transition" data-translate-key="logout"></button>
+                    </div>
+                    <p class="mb-4 text-sm text-gray-500">${translate('yourUserIdIs', userId)}</p>
+                    <div class="space-y-6">
+                        ${Object.keys(schedules).map(day => `
+                            <div>
+                                <h2 class="text-xl font-bold text-golden-yellow mb-4">${day}</h2>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    ${schedules[day].map(group => `
+                                        <button onclick="window.viewGroup('${group.id}')" class="bg-light-beige p-6 rounded-lg shadow-md hover:shadow-lg transition transform hover:scale-105">
+                                            <h3 class="text-lg font-bold text-dark-purple">${group.grade}</h3>
+                                            <p class="text-sm font-semibold text-gray-600">${group.days}</p>
+                                            <p class="text-sm text-gray-500">${translate('classTime', group.time)}</p>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            updateUIForLanguage();
+        };
+
+        const renderTeacherHome = () => {
+            currentRole = 'teacher';
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="w-full max-w-2xl p-6 sm:p-8 bg-white rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-dark-purple" data-translate-key="teacherDashboard"></h1>
+                        <button onclick="window.renderLogin()" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-lg font-semibold hover:bg-gray-300 transition" data-translate-key="logout"></button>
+                    </div>
+                    <p class="mb-4 text-sm text-gray-500">${translate('yourUserIdIs', userId)}</p>
+                    <div class="space-y-6">
+                        ${Object.keys(schedules).map(day => `
+                            <div>
+                                <h2 class="text-xl font-bold text-golden-yellow mb-4">${day}</h2>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    ${schedules[day].map(group => `
+                                        <button onclick="window.viewGroup('${group.id}')" class="bg-light-beige p-6 rounded-lg shadow-md hover:shadow-lg transition transform hover:scale-105">
+                                            <h3 class="text-lg font-bold text-dark-purple">${group.grade}</h3>
+                                            <p class="text-sm font-semibold text-gray-600">${group.days}</p>
+                                            <p class="text-sm text-gray-500">${translate('classTime', group.time)}</p>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            updateUIForLanguage();
+        };
+        
+        const renderAssistantHome = () => {
+            currentRole = 'assistant';
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="w-full max-w-2xl p-6 sm:p-8 bg-white rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <h1 class="text-2xl sm:text-3xl font-bold text-dark-purple" data-translate-key="assistantDashboard"></h1>
+                        <button onclick="window.renderLogin()" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-lg font-semibold hover:bg-gray-300 transition" data-translate-key="logout"></button>
+                    </div>
+                    <p class="mb-4 text-sm text-gray-500">${translate('yourUserIdIs', userId)}</p>
+                    <div class="space-y-6">
+                        ${Object.keys(schedules).map(day => `
+                            <div>
+                                <h2 class="text-xl font-bold text-golden-yellow mb-4">${day}</h2>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    ${schedules[day].map(group => `
+                                        <button onclick="window.viewGroup('${group.id}')" class="bg-light-beige p-6 rounded-lg shadow-md hover:shadow-lg transition transform hover:scale-105">
+                                            <h3 class="text-lg font-bold text-dark-purple">${group.grade}</h3>
+                                            <p class="text-sm font-semibold text-gray-600">${group.days}</p>
+                                            <p class="text-sm text-gray-500">${translate('classTime', group.time)}</p>
+                                        </button>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            updateUIForLanguage();
+        };
+
+        const renderGroupPage = async (groupId) => {
+            currentGroupId = groupId;
+            const groupData = Object.values(schedules).flat().find(g => g.id === groupId);
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="w-full max-w-3xl p-6 sm:p-8 bg-white rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <button onclick="window.goBack()" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-lg font-semibold hover:bg-gray-300 transition" data-translate-key="back"></button>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-dark-purple">${groupData.grade}${translate('groupTitle')}${groupData.days}</h1>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
+                        <div class="bg-light-beige p-6 rounded-lg shadow-md text-center">
+                            <h2 class="text-lg font-bold text-dark-purple mb-2" data-translate-key="sessionsCountdown"></h2>
+                            <p id="countdown" class="text-4xl font-mono text-golden-yellow">--:--:--</p>
+                        </div>
+                        <div class="bg-light-beige p-6 rounded-lg shadow-md text-center">
+                            <h2 class="text-lg font-bold text-dark-purple mb-2" data-translate-key="lessonNumber"></h2>
+                            <div class="flex items-center justify-center space-x-4">
+                                ${currentRole === 'teacher' ? `
+                                    <button id="decrement-lesson" class="bg-dark-purple text-white px-3 py-1 rounded-md">-</button>
+                                ` : ''}
+                                <p id="lesson-number" class="text-4xl font-mono text-golden-yellow">--</p>
+                                ${currentRole === 'teacher' ? `
+                                    <button id="increment-lesson" class="bg-dark-purple text-white px-3 py-1 rounded-md">+</button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${currentRole === 'teacher' ? `
+                        <div class="flex justify-center space-x-4 mb-6">
+                            <button id="reschedule-session" class="bg-dark-purple text-white py-2 px-4 rounded-lg font-semibold hover:bg-opacity-80 transition" data-translate-key="rescheduleSession"></button>
+                            <button id="skip-next-session" class="bg-red-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-red-700 transition" data-translate-key="skipNextSession"></button>
+                        </div>
+                    ` : ''}
+
+                    <!-- Tabs for Material and Exam -->
+                    <div class="flex justify-center space-x-4 mb-6">
+                        <button id="material-tab" class="px-4 py-2 rounded-lg font-semibold bg-dark-purple text-white" data-translate-key="materials"></button>
+                        <button id="exam-tab" class="px-4 py-2 rounded-lg font-semibold bg-gray-200 text-dark-purple" data-translate-key="exams"></button>
+                    </div>
+
+                    <!-- Content Section for Tabs -->
+                    <div id="tab-content">
+                        <!-- Content will be injected here -->
+                    </div>
+
+                    <!-- Students Roster & Evaluation Section -->
+                    <div id="students-section" class="bg-light-beige p-6 rounded-lg shadow-md mb-8">
+                        <h2 class="text-lg font-bold text-dark-purple mb-4" data-translate-key="studentsRoster"></h2>
+                        <div id="students-list-container" class="space-y-4"></div>
+                        ${currentRole === 'teacher' || currentRole === 'assistant' ? `
+                            <div class="mt-6 border-t pt-4">
+                                <h3 class="font-semibold mb-2" data-translate-key="addStudent"></h3>
+                                <div class="flex space-x-2">
+                                    <input id="new-student-name" type="text" data-translate-placeholder="enterStudentName" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-golden-yellow">
+                                    <button id="add-student-button" class="bg-dark-purple text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-80 transition" data-translate-key="addStudentButton"></button>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+
+                    ${currentRole === 'assistant' ? `
+                        <div id="assistant-notes-section" class="bg-golden-yellow bg-opacity-20 p-6 rounded-lg shadow-md">
+                            <h2 class="text-lg font-bold text-dark-purple mb-4" data-translate-key="assistantNotes"></h2>
+                            <textarea id="assistant-notes-text" data-translate-placeholder="enterNotes" rows="5" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-golden-yellow"></textarea>
+                            <button id="save-assistant-notes" class="mt-2 bg-dark-purple text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-80 transition" data-translate-key="saveNotes"></button>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            
+            // Add listeners
+            document.getElementById('material-tab').addEventListener('click', () => switchTab('materials'));
+            document.getElementById('exam-tab').addEventListener('click', () => switchTab('exams'));
+
+            // Show initial tab content
+            switchTab('materials');
+
+            if (currentRole === 'teacher' || currentRole === 'assistant') {
+                document.getElementById('add-student-button').addEventListener('click', addStudent);
+            }
+            if (currentRole === 'teacher') {
+                document.getElementById('increment-lesson').addEventListener('click', () => updateLessonCounter(1));
+                document.getElementById('decrement-lesson').addEventListener('click', () => updateLessonCounter(-1));
+                document.getElementById('skip-next-session').addEventListener('click', skipNextSession);
+                document.getElementById('reschedule-session').addEventListener('click', showRescheduleModal);
+                document.getElementById('reschedule-cancel-button').addEventListener('click', hideRescheduleModal);
+                document.getElementById('reschedule-save-button').addEventListener('click', rescheduleNextSession);
+            }
+            if (currentRole === 'assistant') {
+                document.getElementById('save-assistant-notes').addEventListener('click', saveAssistantNotes);
+            }
+
+            // Start real-time listeners
+            listenForGroupData(groupId);
+            if (currentRole === 'assistant' && userId) {
+                listenForAssistantNotes();
+            } else if (currentRole === 'assistant') {
+                const authUnsubscribe = onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        listenForAssistantNotes();
+                    }
+                    authUnsubscribe();
+                });
+            }
+            listenForStudents(groupId);
+            updateUIForLanguage();
+        };
+        
+        const renderMaterialsTab = (materials) => {
+            const tabContent = document.getElementById('tab-content');
+            tabContent.innerHTML = `
+                <div id="materials-list" class="space-y-4">
+                    ${materials.length === 0 ? `<p class="text-center text-gray-500" data-translate-key="noMaterials"></p>` : ''}
+                    ${materials.map(material => `
+                        <div class="p-4 bg-gray-100 rounded-lg shadow-inner flex justify-between items-start">
+                            <div class="flex-grow">
+                                <p class="text-sm text-gray-500">${translate('lesson')}: ${material.lessonNumber}</p>
+                                <p>${material.material}</p>
+                            </div>
+                            ${currentRole === 'teacher' ? `
+                                <div class="flex space-x-2 mr-4">
+                                    <button onclick="window.showEditMaterialModal('${material.id}', '${material.material.replace(/'/g, "\\'")}')" class="text-sm bg-golden-yellow text-dark-purple px-2 py-1 rounded-md font-semibold" data-translate-key="editMaterial"></button>
+                                    <button onclick="window.deleteMaterial('${material.id}')" class="text-sm bg-red-500 text-white px-2 py-1 rounded-md font-semibold" data-translate-key="delete"></button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                ${currentRole === 'teacher' ? `
+                    <div class="mt-6 border-t pt-4">
+                        <h3 class="font-semibold mb-2" data-translate-key="addMaterial"></h3>
+                        <div class="flex flex-col space-y-2">
+                            <textarea id="new-material-text" rows="3" data-translate-placeholder="enterNewMaterial" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-golden-yellow"></textarea>
+                            <button id="add-material-button" class="bg-dark-purple text-white px-4 py-2 rounded-lg font-semibold hover:bg-opacity-80 transition" data-translate-key="addMaterialButton"></button>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+            if (currentRole === 'teacher') {
+                document.getElementById('add-material-button').addEventListener('click', addMaterial);
+                document.getElementById('edit-material-save-button').addEventListener('click', editMaterial);
+                document.getElementById('edit-material-cancel-button').addEventListener('click', hideEditMaterialModal);
+            }
+            updateUIForLanguage();
+        };
+
+        const renderExamsTab = (exams) => {
+            const tabContent = document.getElementById('tab-content');
+            tabContent.innerHTML = `
+                <div id="exams-list" class="space-y-4">
+                    ${exams.length === 0 ? `<p class="text-center text-gray-500" data-translate-key="noExams"></p>` : ''}
+                    ${exams.map(exam => `
+                        <div class="p-4 bg-gray-100 rounded-lg shadow-inner flex justify-between items-start">
+                            <div>
+                                <h4 class="font-bold">${exam.title}</h4>
+                                <p class="text-sm text-gray-500">${translate('examDuration')} ${exam.timeLimit} ${translate('minutesShort')}</p>
+                            </div>
+                            <div class="flex space-x-2 mr-4">
+                                ${currentRole === 'teacher' ? `
+                                    <button onclick='window.showEditExamModal(${JSON.stringify(exam)})' class="text-sm bg-golden-yellow text-dark-purple px-2 py-1 rounded-md font-semibold" data-translate-key="editExam"></button>
+                                    <button onclick="window.deleteExam('${exam.id}')" class="text-sm bg-red-500 text-white px-2 py-1 rounded-md font-semibold" data-translate-key="delete"></button>
+                                ` : ''}
+                                ${currentRole === 'student' ? `
+                                    <button onclick="window.takeExam('${exam.id}')" class="text-sm bg-dark-purple text-white px-2 py-1 rounded-md font-semibold" data-translate-key="startExam"></button>
+                                    <button onclick="window.viewExamResults('${exam.id}')" class="text-sm bg-gray-500 text-white px-2 py-1 rounded-md font-semibold" data-translate-key="viewResults"></button>
+                                ` : ''}
+                                ${currentRole === 'assistant' ? `
+                                    <button onclick="window.viewExamResults('${exam.id}')" class="text-sm bg-gray-500 text-white px-2 py-1 rounded-md font-semibold" data-translate-key="viewResults"></button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                ${currentRole === 'teacher' ? `
+                    <div class="mt-6 border-t pt-4">
+                        <button id="create-exam-button" class="bg-dark-purple text-white w-full py-2 rounded-lg font-semibold hover:bg-opacity-80 transition" data-translate-key="createExam"></button>
+                    </div>
+                ` : ''}
+            `;
+            if (currentRole === 'teacher') {
+                document.getElementById('create-exam-button').addEventListener('click', showCreateExamModal);
+                document.getElementById('add-question-button').addEventListener('click', () => addQuestion(false));
+                document.getElementById('save-exam-button').addEventListener('click', saveExam);
+                document.getElementById('cancel-create-exam-button').addEventListener('click', hideCreateExamModal);
+                document.getElementById('edit-add-question-button').addEventListener('click', () => addQuestion(true));
+                document.getElementById('edit-save-exam-button').addEventListener('click', editExam);
+                document.getElementById('edit-cancel-exam-button').addEventListener('click', hideEditExamModal);
+            }
+            updateUIForLanguage();
+        };
+
+        const renderExamTakingPage = (examData) => {
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="w-full max-w-2xl p-6 sm:p-8 bg-white rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <button onclick="window.goBack()" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-lg font-semibold hover:bg-gray-300 transition" data-translate-key="back"></button>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-dark-purple">${examData.title}</h1>
+                        <div id="exam-timer" class="text-lg font-bold text-red-500"></div>
+                    </div>
+                    <form id="exam-form" class="space-y-6">
+                        ${examData.questions.map((q, index) => `
+                            <div class="p-4 bg-gray-100 rounded-lg shadow-inner">
+                                <h4 class="font-bold mb-2">${translate('question')} ${index + 1}: ${q.question}</h4>
+                                ${q.type === 'choose' ? `
+                                    <div class="space-y-2">
+                                        ${q.options.map(option => `
+                                            <label class="flex items-center space-x-2">
+                                                <input type="radio" name="q-${index}" value="${option}" class="text-golden-yellow focus:ring-golden-yellow">
+                                                <span>${option}</span>
+                                            </label>
+                                        `).join('')}
+                                    </div>
+                                ` : q.type === 'complete' ? `
+                                    <input type="text" name="q-${index}" data-translate-placeholder="enterCorrectAnswer" class="w-full px-3 py-2 border rounded-md focus:ring-golden-yellow focus:border-golden-yellow">
+                                ` : `
+                                    <textarea name="q-${index}" rows="3" data-translate-placeholder="enterCorrectAnswer" class="w-full p-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-golden-yellow"></textarea>
+                                `}
+                            </div>
+                        `).join('')}
+                        <button type="submit" class="w-full bg-dark-purple text-white py-3 rounded-lg font-semibold hover:bg-opacity-80 transition" data-translate-key="submitExam"></button>
+                    </form>
+                </div>
+            `;
+            document.getElementById('exam-form').addEventListener('submit', (e) => submitExam(e, examData));
+            startExamTimer(examData.timeLimit);
+            updateUIForLanguage();
+        };
+
+        const renderFinalResultPage = (resultData) => {
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="w-full max-w-2xl p-6 sm:p-8 bg-white rounded-2xl shadow-xl text-center">
+                    <h1 class="text-3xl font-bold text-dark-purple mb-4" data-translate-key="examResult"></h1>
+                    <p class="text-lg text-gray-700 mb-6" data-translate-key="yourScoreIs"></p>
+                    <p class="text-6xl font-bold text-golden-yellow">${resultData.score} / ${resultData.total}</p>
+                    <div class="mt-8">
+                        <button onclick="window.goBack()" class="bg-dark-purple text-white px-6 py-3 rounded-lg font-semibold hover:bg-opacity-80 transition" data-translate-key="goBack"></button>
+                    </div>
+                </div>
+            `;
+            updateUIForLanguage();
+        };
+
+        const renderExamResults = (examData, submissions) => {
+            const container = document.getElementById('app-container');
+            container.innerHTML = `
+                <div class="w-full max-w-4xl p-6 sm:p-8 bg-white rounded-2xl shadow-xl">
+                    <div class="flex items-center justify-between mb-8">
+                        <button onclick="window.goBack()" class="px-4 py-2 bg-gray-200 text-dark-purple rounded-lg font-semibold hover:bg-gray-300 transition" data-translate-key="back"></button>
+                        <h1 class="text-2xl sm:text-3xl font-bold text-dark-purple">${translate('examResultFor', examData.title)}</h1>
+                    </div>
+                    ${submissions.length === 0 ? `<p class="text-center text-gray-500" data-translate-key="noResultsFound"></p>` : ''}
+                    <div class="space-y-4">
+                        ${submissions.map(sub => `
+                            <div class="p-4 bg-gray-100 rounded-lg shadow-inner">
+                                <h4 class="font-bold text-lg">${translate('student')}: ${sub.studentName}</h4>
+                                <p class="text-sm text-gray-500 mb-2">${translate('rating')}: ${sub.score} / ${examData.questions.length}</p>
+                                <div class="mt-4 space-y-2">
+                                    ${examData.questions.map((q, index) => {
+                                        const studentAnswer = sub.answers?.[`q-${index}`] || translate('noAnswer');
+                                        const isCorrect = q.correctAnswer && studentAnswer === q.correctAnswer;
+                                        const statusClass = isCorrect ? 'text-green-600' : 'text-red-600';
+                                        const statusText = isCorrect ? translate('correct') : translate('incorrect');
+                                        
+                                        return `
+                                            <div class="p-3 border rounded-md">
+                                                <p class="font-semibold">${translate('question')} ${index + 1}: ${q.question}</p>
+                                                <p class="${statusClass} font-semibold">${statusText}</p>
+                                                <p class="text-sm">${translate('studentAnswer')} ${studentAnswer}</p>
+                                                <p class="text-sm">${translate('correctAnswer')} ${q.correctAnswer}</p>
+                                            </div>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            updateUIForLanguage();
+        };
+        
+        const fetchAllExamSubmissions = async () => {
+            const examsRef = collection(db, `artifacts/${appId}/public/data/exams`);
+            const submissionsRef = collection(db, `artifacts/${appId}/public/data/exam_submissions`);
+            
+            const examSnap = await getDocs(examsRef);
+            const exams = examSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            const submissionsSnap = await getDocs(submissionsRef);
+            const submissions = submissionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            
+            const resultsList = document.getElementById('results-list');
+            if (!resultsList) return;
+
+            if (submissions.length === 0) {
+                resultsList.innerHTML = `<p class="text-center text-gray-500">${translate('noResultsFound')}</p>`;
+                return;
+            }
+
+            resultsList.innerHTML = '';
+            
+            submissions.forEach(sub => {
+                const exam = exams.find(e => e.id === sub.examId);
+                const examTitle = exam ? exam.title : translate('unknownExam');
+                const total = exam ? exam.questions.length : '؟';
+                
+                resultsList.innerHTML += `
+                    <div class="p-4 bg-gray-100 rounded-lg shadow-inner">
+                        <h4 class="font-bold">${translate('examTitle')}: ${examTitle}</h4>
+                        <p>${translate('student')}: ${sub.studentName}</p>
+                        <p>${translate('group')}: ${sub.groupId}</p>
+                        <p>${translate('score')}: ${sub.score} / ${total}</p>
+                    </div>
+                `;
+            });
+            updateUIForLanguage();
+        };
+
+        // --- Firebase Functions ---
+
+        const getDbPath = (collectionName, docId = null) => {
+            if (['groups', 'exams', 'materials', 'students', 'exam_submissions'].includes(collectionName)) {
+                return `artifacts/${appId}/public/data/${collectionName}/${docId ? docId : ''}`;
+            } else if (['assistant_notes'].includes(collectionName)) {
+                return `artifacts/${appId}/users/${userId}/${collectionName}/${docId ? docId : ''}`;
+            }
+        };
+
+        const listenForGroupData = (groupId) => {
+            const docRef = doc(db, getDbPath('groups', groupId));
+            onSnapshot(docRef, async (docSnap) => {
+                const groupData = Object.values(schedules).flat().find(g => g.id === groupId);
+                
+                let nextSessionDate;
+                if (docSnap.exists() && docSnap.data().nextSession) {
+                    nextSessionDate = docSnap.data().nextSession.toDate();
+                } else {
+                    const initialNextSession = findNextScheduledSession(groupData);
+                    await setDoc(doc(db, getDbPath('groups', groupId)), {
+                        lessonNumber: 1,
+                        nextSession: initialNextSession,
+                        skipped: false
+                    });
+                    nextSessionDate = initialNextSession;
+                }
+                
+                // Check if the stored date is in the past, and if so, update it
+                const now = new Date();
+                if (nextSessionDate.getTime() < now.getTime()) {
+                    const newNextSessionDate = findNextScheduledSession(groupData);
+                    await updateDoc(docRef, { nextSession: newNextSessionDate });
+                    updateCountdown(newNextSessionDate);
+                } else {
+                    updateCountdown(nextSessionDate);
+                }
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data();
+                    document.getElementById('lesson-number').innerText = data.lessonNumber || 1;
+                }
+            });
+        };
+        
+        const listenForStudents = (groupId) => {
+            const collectionRef = collection(db, getDbPath('groups', groupId) + '/students');
+            onSnapshot(collectionRef, (snapshot) => {
+                const students = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const studentsListContainer = document.getElementById('students-list-container');
+                if (studentsListContainer) {
+                    studentsListContainer.innerHTML = students.map(student => `
+                        <div class="flex justify-between items-center p-4 bg-gray-200 rounded-lg shadow-md">
+                            <div class="flex-grow">
+                                <h4 class="font-bold">${student.name}</h4>
+                                ${currentRole === 'teacher' || currentRole === 'assistant' ? `<p class="text-sm text-gray-600">ID: ${student.id}</p>` : ''}
+                                <p class="text-sm">${translate('rating')} ${student.rating || translate('noRating')}</p>
+                            </div>
+                            ${currentRole === 'teacher' ? `
+                                <div class="flex space-x-2">
+                                    <button onclick="window.updateStudentRating('${student.id}', 1)" class="bg-green-500 text-white px-2 py-1 rounded-md">+</button>
+                                    <button onclick="window.updateStudentRating('${student.id}', -1)" class="bg-red-500 text-white px-2 py-1 rounded-md">-</button>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                }
+            });
+            updateUIForLanguage();
+        };
+
+        const listenForMaterials = (groupId) => {
+            const collectionRef = collection(db, getDbPath('groups', groupId) + '/materials');
+            onSnapshot(collectionRef, (snapshot) => {
+                const materials = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderMaterialsTab(materials);
+            });
+        };
+
+        const listenForExams = (groupId) => {
+            const collectionRef = collection(db, getDbPath('groups', groupId) + '/exams');
+            onSnapshot(collectionRef, (snapshot) => {
+                const exams = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderExamsTab(exams);
+            });
+        };
+
+        const listenForAssistantNotes = () => {
+            if (!userId) return;
+            const docRef = doc(db, getDbPath('assistant_notes', currentGroupId));
+            onSnapshot(docRef, (docSnap) => {
+                if (docSnap.exists() && docSnap.data().notes) {
+                    document.getElementById('assistant-notes-text').value = docSnap.data().notes;
+                }
+            });
+        };
+
+        // --- Core App Logic ---
+
+        const handleLogin = async () => {
+            const password = document.getElementById('password-input').value;
+            if (password === '123') {
+                currentRole = 'teacher';
+                renderTeacherHome();
+            } else if (password === '456') {
+                currentRole = 'assistant';
+                renderAssistantHome();
+            } else if (password === '789') {
+                currentRole = 'secret';
+                renderSecretResultsPage();
+            } else {
+                currentRole = 'student';
+                renderStudentHome();
+            }
+        };
+
+        const goBack = () => {
+            if (currentRole === 'teacher') {
+                renderTeacherHome();
+            } else if (currentRole === 'student') {
+                renderStudentHome();
+            } else if (currentRole === 'assistant') {
+                renderAssistantHome();
+            } else if (currentRole === 'secret') {
+                renderSecretResultsPage();
+            } else {
+                renderLogin();
+            }
+        };
+
+        const viewGroup = (groupId) => {
+            renderGroupPage(groupId);
+        };
+        
+        const switchTab = (tabName) => {
+            const materialTab = document.getElementById('material-tab');
+            const examTab = document.getElementById('exam-tab');
+            if (tabName === 'materials') {
+                materialTab.classList.remove('bg-gray-200', 'text-dark-purple');
+                materialTab.classList.add('bg-dark-purple', 'text-white');
+                examTab.classList.remove('bg-dark-purple', 'text-white');
+                examTab.classList.add('bg-gray-200', 'text-dark-purple');
+                listenForMaterials(currentGroupId);
+            } else {
+                examTab.classList.remove('bg-gray-200', 'text-dark-purple');
+                examTab.classList.add('bg-dark-purple', 'text-white');
+                materialTab.classList.remove('bg-dark-purple', 'text-white');
+                materialTab.classList.add('bg-gray-200', 'text-dark-purple');
+                listenForExams(currentGroupId);
+            }
+        };
+        
+        const updateLessonCounter = async (change) => {
+            const docRef = doc(db, getDbPath('groups', currentGroupId));
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const currentLesson = docSnap.data().lessonNumber;
+                const newLesson = Math.max(1, currentLesson + change);
+                await updateDoc(docRef, { lessonNumber: newLesson });
+            }
+        };
+
+        const skipNextSession = async () => {
+            const docRef = doc(db, getDbPath('groups', currentGroupId));
+            await updateDoc(docRef, { skipped: true });
+            showModal(translate('skipNextSession'), translate('sessionSkipped'));
+        };
+
+        const rescheduleNextSession = async () => {
+            const dateInput = document.getElementById('reschedule-date').value;
+            const timeInput = document.getElementById('reschedule-time').value;
+            if (!dateInput || !timeInput) {
+                showModal(translate('error'), translate('enterData'));
+                return;
+            }
+            const newDate = new Date(`${dateInput}T${timeInput}`);
+            const docRef = doc(db, getDbPath('groups', currentGroupId));
+            await updateDoc(docRef, { nextSession: newDate });
+            hideRescheduleModal();
+            showModal(translate('rescheduleSession'), translate('sessionRescheduled'));
+        };
+
+        const saveAssistantNotes = async () => {
+            const notesText = document.getElementById('assistant-notes-text').value;
+            const docRef = doc(db, getDbPath('assistant_notes', currentGroupId));
+            await setDoc(docRef, { notes: notesText });
+            showModal(translate('saveNotes'), translate('notesSaved'));
+        };
+
+        const addStudent = async () => {
+            const studentName = document.getElementById('new-student-name').value;
+            if (!studentName) {
+                showModal(translate('error'), translate('enterData'));
+                return;
+            }
+            const collectionRef = collection(db, getDbPath('groups', currentGroupId) + '/students');
+            await addDoc(collectionRef, { name: studentName, rating: 0 });
+            document.getElementById('new-student-name').value = '';
+            showModal(translate('addStudent'), `${translate('studentAdded')} ${studentName} ${translate('successfully')}`);
+        };
+        
+        const updateStudentRating = async (studentId, change) => {
+            const docRef = doc(db, getDbPath('groups', currentGroupId) + '/students', studentId);
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+                const currentRating = docSnap.data().rating || 0;
+                await updateDoc(docRef, { rating: Math.max(0, currentRating + change) });
+            }
+        };
+        
+        const addMaterial = async () => {
+            const newMaterialText = document.getElementById('new-material-text').value;
+            if (!newMaterialText) {
+                showModal(translate('error'), translate('enterData'));
+                return;
+            }
+            const docRef = doc(db, getDbPath('groups', currentGroupId));
+            const docSnap = await getDoc(docRef);
+            const lessonNumber = docSnap.exists() ? docSnap.data().lessonNumber : 1;
+
+            const collectionRef = collection(db, getDbPath('groups', currentGroupId) + '/materials');
+            await addDoc(collectionRef, {
+                material: newMaterialText,
+                lessonNumber: lessonNumber,
+                timestamp: new Date()
+            });
+            document.getElementById('new-material-text').value = '';
+            showModal(translate('addMaterialButton'), translate('materialAdded'));
+        };
+
+        const editMaterial = async () => {
+            const newText = document.getElementById('edit-material-text').value;
+            if (!newText || materialToEditId === null) {
+                showModal(translate('error'), translate('enterData'));
+                return;
+            }
+            const docRef = doc(db, getDbPath('groups', currentGroupId) + '/materials', materialToEditId);
+            await updateDoc(docRef, { material: newText });
+            hideEditMaterialModal();
+            showModal(translate('editMaterial'), translate('materialEdited'));
+        };
+        
+        const deleteMaterial = async (materialId) => {
+            const docRef = doc(db, getDbPath('groups', currentGroupId) + '/materials', materialId);
+            await deleteDoc(docRef);
+            showModal(translate('delete'), translate('materialDeleted'));
+        };
+        
+        const addQuestion = (isEdit) => {
+            const containerId = isEdit ? 'edit-questions-container' : 'questions-container';
+            const questionsContainer = document.getElementById(containerId);
+            const index = examQuestions.length;
+            examQuestions.push({ type: 'choose', question: '', correctAnswer: '', options: ['', '', '', ''] });
+            questionsContainer.insertAdjacentHTML('beforeend', createQuestionHtml(examQuestions[index], index, isEdit));
+            updateUIForLanguage();
+        };
+        
+        const removeQuestion = (index, isEdit) => {
+            examQuestions.splice(index, 1);
+            if (isEdit) {
+                const examData = {
+                    id: currentExamId,
+                    title: document.getElementById('edit-exam-title').value,
+                    timeLimit: document.getElementById('edit-exam-time-limit').value,
+                    questions: examQuestions
+                };
+                showEditExamModal(examData);
+            } else {
+                showCreateExamModal();
+                examQuestions.forEach((q, i) => {
+                    document.getElementById('questions-container').insertAdjacentHTML('beforeend', createQuestionHtml(q, i, false));
+                });
+            }
+        };
+        
+        const updateQuestionType = (index, type, isEdit) => {
+            examQuestions[index].type = type;
+            const prefix = isEdit ? 'edit-' : '';
+            const optionsContainer = document.getElementById(`${prefix}options-container-${index}`);
+            optionsContainer.innerHTML = '';
+            if (type === 'choose') {
+                optionsContainer.innerHTML = `
+                    <input type="text" id="${prefix}q-correct-answer-${index}" data-translate-placeholder="enterCorrectAnswer" class="w-full px-2 py-1 border rounded-md mb-2">
+                    <input type="text" id="${prefix}q-option-1-${index}" data-translate-placeholder="option" class="w-full px-2 py-1 border rounded-md mb-1">
+                    <input type="text" id="${prefix}q-option-2-${index}" data-translate-placeholder="option" class="w-full px-2 py-1 border rounded-md mb-1">
+                    <input type="text" id="${prefix}q-option-3-${index}" data-translate-placeholder="option" class="w-full px-2 py-1 border rounded-md mb-1">
+                    <input type="text" id="${prefix}q-option-4-${index}" data-translate-placeholder="option" class="w-full px-2 py-1 border rounded-md mb-1">
+                `;
+            } else if (type === 'complete') {
+                optionsContainer.innerHTML = `<input type="text" id="${prefix}q-correct-answer-${index}" data-translate-placeholder="enterCorrectAnswer" class="w-full px-2 py-1 border rounded-md mb-2">`;
+            } else if (type === 'story') {
+                 optionsContainer.innerHTML = `<input type="text" id="${prefix}q-correct-answer-${index}" data-translate-placeholder="enterCorrectAnswer" class="hidden">`;
+            }
+            updateUIForLanguage();
+        };
+
+        const saveExam = async () => {
+            const title = document.getElementById('exam-title').value;
+            const timeLimit = parseInt(document.getElementById('exam-time-limit').value);
+            const questions = [];
+            const prefix = '';
+            
+            for (let i = 0; i < examQuestions.length; i++) {
+                const type = document.getElementById(`${prefix}q-type-${i}`).value;
+                const questionText = document.getElementById(`${prefix}q-text-${i}`).value;
+                let correctAnswer = '';
+                let options = [];
+
+                if (type === 'choose' || type === 'complete') {
+                    const answerElement = document.getElementById(`${prefix}q-correct-answer-${i}`);
+                    if (answerElement) {
+                        correctAnswer = answerElement.value;
+                    }
+                }
+                
+                if (type === 'choose') {
+                    for (let j = 1; j <= 4; j++) {
+                        const optionElement = document.getElementById(`${prefix}q-option-${j}-${i}`);
+                        if (optionElement && optionElement.value) {
+                            options.push(optionElement.value);
+                        }
+                    }
+                }
+
+                if (questionText && (type === 'story' || (correctAnswer && (type === 'complete' || (type === 'choose' && options.length > 0))))) {
+                    questions.push({
+                        type,
+                        question: questionText,
+                        correctAnswer,
+                        options
+                    });
+                }
+            }
+            
+            if (!title || questions.length === 0) {
+                showModal(translate('error'), translate('enterData'));
+                return;
+            }
+
+            const collectionRef = collection(db, getDbPath('groups', currentGroupId) + '/exams');
+            await addDoc(collectionRef, {
+                title,
+                timeLimit,
+                questions,
+                createdAt: new Date()
+            });
+            hideCreateExamModal();
+            showModal(translate('saveExam'), translate('examSaved'));
+        };
+
+        const editExam = async () => {
+            const title = document.getElementById('edit-exam-title').value;
+            const timeLimit = parseInt(document.getElementById('edit-exam-time-limit').value);
+            const questions = [];
+            const prefix = 'edit-';
+
+            for (let i = 0; i < examQuestions.length; i++) {
+                const type = document.getElementById(`${prefix}q-type-${i}`).value;
+                const questionText = document.getElementById(`${prefix}q-text-${i}`).value;
+                let correctAnswer = '';
+                let options = [];
+
+                if (type === 'choose' || type === 'complete') {
+                    const answerElement = document.getElementById(`${prefix}q-correct-answer-${i}`);
+                    if (answerElement) {
+                        correctAnswer = answerElement.value;
+                    }
+                }
+
+                if (type === 'choose') {
+                    for (let j = 1; j <= 4; j++) {
+                        const optionElement = document.getElementById(`${prefix}q-option-${j}-${i}`);
+                        if (optionElement && optionElement.value) {
+                            options.push(optionElement.value);
+                        }
+                    }
+                }
+                
+                if (questionText && (type === 'story' || (correctAnswer && (type === 'complete' || (type === 'choose' && options.length > 0))))) {
+                    questions.push({
+                        type,
+                        question: questionText,
+                        correctAnswer,
+                        options
+                    });
+                }
+            }
+
+            if (!title || questions.length === 0) {
+                showModal(translate('error'), translate('enterData'));
+                return;
+            }
+
+            const docRef = doc(db, getDbPath('groups', currentGroupId) + '/exams', currentExamId);
+            await updateDoc(docRef, {
+                title,
+                timeLimit,
+                questions
+            });
+            hideEditExamModal();
+            showModal(translate('editExam'), translate('examEdited'));
+        };
+
+        const deleteExam = async (examId) => {
+            const docRef = doc(db, getDbPath('groups', currentGroupId) + '/exams', examId);
+            await deleteDoc(docRef);
+            showModal(translate('delete'), translate('examDeleted'));
+        };
+        
+        const takeExam = async (examId) => {
+            const examRef = doc(db, getDbPath('groups', currentGroupId) + '/exams', examId);
+            const docSnap = await getDoc(examRef);
+            if (docSnap.exists()) {
+                const examData = { id: docSnap.id, ...docSnap.data() };
+                renderExamTakingPage(examData);
+            } else {
+                showModal(translate('error'), translate('examNotFound'));
+            }
+        };
+
+        const submitExam = async (e, examData) => {
+            e.preventDefault();
+            clearInterval(examTimerInterval);
+            
+            const form = e.target;
+            const answers = {};
+            let score = 0;
+
+            examData.questions.forEach((q, index) => {
+                let userAnswer = '';
+                if (q.type === 'choose') {
+                    const selectedOption = form.querySelector(`input[name="q-${index}"]:checked`);
+                    if (selectedOption) {
+                        userAnswer = selectedOption.value;
+                    }
+                } else if (q.type === 'complete' || q.type === 'story') {
+                    const inputElement = form.querySelector(`[name="q-${index}"]`);
+                    if (inputElement) {
+                        userAnswer = inputElement.value.trim();
+                    }
+                }
+                
+                answers[`q-${index}`] = userAnswer;
+                if (q.correctAnswer && userAnswer === q.correctAnswer) {
+                    score++;
+                }
+            });
+
+            const studentName = 'طالب'; // Placeholder for student name
+            const submissionRef = collection(db, getDbPath('exam_submissions'));
+            
+            await addDoc(submissionRef, {
+                examId: examData.id,
+                groupId: currentGroupId,
+                studentName: studentName,
+                answers,
+                score,
+                total: examData.questions.length,
+                timestamp: new Date(),
+                userId: userId
+            });
+
+            renderFinalResultPage({ score, total: examData.questions.length });
+        };
+        
+        const viewExamResults = async (examId) => {
+            const examRef = doc(db, getDbPath('groups', currentGroupId) + '/exams', examId);
+            const examSnap = await getDoc(examRef);
+            if (!examSnap.exists()) {
+                showModal(translate('error'), translate('examNotFound'));
+                return;
+            }
+            const examData = { id: examSnap.id, ...examSnap.data() };
+
+            const submissionsRef = collection(db, getDbPath('exam_submissions'));
+            const submissionsQuery = query(submissionsRef, where('examId', '==', examId), where('groupId', '==', currentGroupId));
+            const submissionsSnap = await getDocs(submissionsQuery);
+            const submissions = submissionsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+            if (currentRole === 'student') {
+                const mySubmission = submissions.find(sub => sub.userId === userId);
+                if (mySubmission) {
+                    renderFinalResultPage({ score: mySubmission.score, total: mySubmission.total });
+                } else {
+                    showModal(translate('noResultsFound'), translate('noSubmission'));
+                }
+            } else {
+                renderExamResults(examData, submissions);
+            }
+        };
+
+        // --- Utility Functions ---
+
+        const findNextScheduledSession = (groupData) => {
+            const now = new Date();
+            const daysMap = { 'Sun': 0, 'Mon': 1, 'Tue': 2, 'Wed': 3, 'Thu': 4, 'Fri': 5, 'Sat': 6 };
+            const [day1, , day2] = groupData.days.split(' ');
+            const day1Num = daysMap[day1];
+            const day2Num = daysMap[day2];
+            const [hours, minutes] = groupData.time.split(':').map(Number);
+            
+            const candidates = [];
+            const currentDay = now.getDay();
+            
+            // Candidate 1
+            let date1 = new Date(now);
+            let day1Diff = day1Num - currentDay;
+            if (day1Diff < 0) day1Diff += 7;
+            date1.setDate(now.getDate() + day1Diff);
+            date1.setHours(hours + 12, minutes, 0, 0); // Convert to 24-hour format
+            
+            // Candidate 2
+            let date2 = new Date(now);
+            let day2Diff = day2Num - currentDay;
+            if (day2Diff < 0) day2Diff += 7;
+            date2.setDate(now.getDate() + day2Diff);
+            date2.setHours(hours + 12, minutes, 0, 0); // Convert to 24-hour format
+            
+            candidates.push(date1, date2);
+            
+            candidates.sort((a, b) => a.getTime() - b.getTime());
+            
+            // Find the first future date, if none exist, pick the earliest for next week
+            let nextSession = candidates.find(d => d.getTime() > now.getTime());
+            
+            if (!nextSession) {
+                const nextWeekCandidates = [];
+                let nextWeekDate1 = new Date(date1);
+                nextWeekDate1.setDate(date1.getDate() + 7);
+                nextWeekCandidates.push(nextWeekDate1);
+                
+                let nextWeekDate2 = new Date(date2);
+                nextWeekDate2.setDate(date2.getDate() + 7);
+                nextWeekCandidates.push(nextWeekDate2);
+                
+                nextWeekCandidates.sort((a, b) => a.getTime() - b.getTime());
+                nextSession = nextWeekCandidates[0];
+            }
+            
+            return nextSession;
+        };
+
+        const updateCountdown = (targetDate) => {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            const countdownEl = document.getElementById('countdown');
+            if (!countdownEl) return;
+            
+            countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate.getTime() - now;
+                
+                if (distance < 0) {
+                    countdownEl.innerHTML = translate('sessionHasStarted');
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                if (currentLang === 'ar') {
+                    countdownEl.innerHTML = `${days}${translate('days')} ${hours}${translate('hours')} ${minutes}${translate('minutes')} ${seconds}${translate('seconds')}`;
+                } else {
+                    countdownEl.innerHTML = `${days}${translate('days')} ${hours}${translate('hours')} ${minutes}${translate('minutes')} ${seconds}${translate('seconds')}`;
+                }
+            }, 1000);
+        };
+
+        const startExamTimer = (timeLimit) => {
+            let timeLeft = timeLimit * 60;
+            const timerEl = document.getElementById('exam-timer');
+            if (!timerEl) return;
+            
+            timerEl.innerText = formatTime(timeLeft);
+            
+            examTimerInterval = setInterval(() => {
+                timeLeft--;
+                if (timeLeft < 0) {
+                    clearInterval(examTimerInterval);
+                    timerEl.innerText = translate('timeUp');
+                    document.getElementById('exam-form').submit();
+                    return;
+                }
+                timerEl.innerText = formatTime(timeLeft);
+            }, 1000);
+        };
+        
+        const formatTime = (seconds) => {
+            const minutes = Math.floor(seconds / 60);
+            const remainingSeconds = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+        };
+
+        // Initial setup
+        window.onload = async () => {
+            try {
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                // Set initial language from local storage or default to 'ar'
+                const storedLang = localStorage.getItem('lang') || 'ar';
+                document.getElementById('language-switcher').value = storedLang;
+                setLanguage(storedLang);
+                
+                // Use the provided auth token for initial sign-in
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        // Initial render based on existing user or sign-in state
+                        if (currentRole === 'teacher') {
+                            renderTeacherHome();
+                        } else if (currentRole === 'assistant') {
+                            renderAssistantHome();
+                        } else if (currentRole === 'student') {
+                            renderStudentHome();
+                        } else if (currentRole === 'secret') {
+                            renderSecretResultsPage();
+                        } else {
+                            renderLogin();
+                        }
+                    } else {
+                        userId = null;
+                        renderLogin();
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
+                showModal(translate('connectionError'), translate('connectionErrorMessage'));
+                renderLogin();
+            }
+
+            document.getElementById('modal-ok-button').addEventListener('click', hideModal);
+            document.getElementById('language-switcher').addEventListener('change', (e) => setLanguage(e.target.value));
+        };
+
+        // Expose functions to global scope for HTML onclick
+        window.renderLogin = renderLogin;
+        window.goBack = goBack;
+        window.viewGroup = viewGroup;
+        window.showEditMaterialModal = showEditMaterialModal;
+        window.deleteMaterial = deleteMaterial;
+        window.showEditExamModal = showEditExamModal;
+        window.deleteExam = deleteExam;
+        window.takeExam = takeExam;
+        window.viewExamResults = viewExamResults;
+        window.removeQuestion = removeQuestion;
+        window.updateQuestionType = updateQuestionType;
+        window.updateStudentRating = updateStudentRating;
+    </script>
+</body>
+</html>
