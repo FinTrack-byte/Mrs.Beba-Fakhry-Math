@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mrs Beba Fakhry's Math Classes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FBF6E7;
+            color: #4B3A4D;
+        }
+        .text-dark-purple { color: #4B3A4D; }
+        .bg-dark-purple { background-color: #4B3A4D; }
+        .bg-light-beige { background-color: #FBF6E7; }
+        .bg-golden-yellow { background-color: #D6A461; }
+        .text-golden-yellow { color: #D6A461; }
+        select.custom-select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-repeat: no-repeat;
+            background-position: left 0.75rem center;
+            background-size: 1.5em;
+            padding-left: 2.5rem;
+            padding-right: 1rem;
+        }
+        html[dir="rtl"] select.custom-select {
+            background-image: url('data:image/svg+xml;utf8,<svg fill="%234B3A4D" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5z"/></svg>');
+            background-position: right 0.75rem center;
+            padding-left: 1rem;
+            padding-right: 2.5rem;
+        }
+        select.custom-select::-ms-expand { display: none; }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <div class="absolute top-4 right-4 z-50">
+        <select id="language-switcher" class="custom-select bg-white rounded-lg border text-dark-purple px-4 py-2 text-sm shadow-md">
+            <option value="ar">العربية</option>
+            <option value="en">English</option>
+        </select>
+    </div>
+
+    <div id="app-container" class="flex-grow flex items-center justify-center p-4"></div>
+
+    <!-- Modal -->
+    <div id="modal-container" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center p-4 z-50">
+        <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm text-center">
+            <h3 id="modal-title" class="text-xl font-bold mb-2"></h3>
+            <p id="modal-message" class="mb-4"></p>
+            <button id="modal-ok-button" class="bg-dark-purple text-white px-4 py-2 rounded-md font-semibold hover:bg-opacity-80 transition"></button>
+        </div>
+    </div>
+
+    <!-- باقي الكود كامل هنا (اللي في الرسالة السابقة) -->
+
+</body>
+</html>
